@@ -1,0 +1,38 @@
+services:
+  # Tu sitio web existente
+  web:
+    build: .
+    container_name: natalia-quintero-website
+    ports:
+      - "8080:80"
+    volumes:
+      - ./index.html:/usr/share/nginx/html/index.html:ro
+      - ./styles.css:/usr/share/nginx/html/styles.css:ro
+      - ./assets:/usr/share/nginx/html/assets:ro
+      - ./en:/usr/share/nginx/html/en:ro
+      - ./fr:/usr/share/nginx/html/fr:ro
+    restart: unless-stopped
+
+  # Strapi CMS para el blog
+  strapi:
+    build: ./backend
+    container_name: natalia-quintero-strapi
+    ports:
+      - "1337:1337"
+    environment:
+      - NODE_ENV=development
+      - HOST=0.0.0.0
+      - PORT=1337
+      - APP_KEYS=toBeModified1,toBeModified2,toBeModified3,toBeModified4
+      - API_TOKEN_SALT=tobemodified
+      - ADMIN_JWT_SECRET=tobemodified
+      - TRANSFER_TOKEN_SALT=tobemodified
+      - JWT_SECRET=tobemodified
+    volumes:
+      - strapi_data:/srv/app/.tmp
+      - strapi_uploads:/srv/app/public/uploads
+    restart: unless-stopped
+
+volumes:
+  strapi_data:
+  strapi_uploads:

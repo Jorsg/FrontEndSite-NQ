@@ -1,0 +1,36 @@
+{
+  "name": "natalia-quintero-blog",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Blog CMS for Natalia Quintero website",
+  "scripts": {
+    "develop": "strapi develop",
+    "start": "strapi start",
+    "build": "strapi build",
+    "strapi": "strapi"
+  },
+  "dependencies": {
+    "@strapi/strapi": "^5.33.1",
+    "@strapi/plugin-users-permissions": "^5.33.1",
+    "@strapi/plugin-cloud": "^5.33.1",
+    "better-sqlite3": "^11.0.0",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "react-router-dom": "^6.0.0",
+    "styled-components": "^6.0.0"
+  },
+  "devDependencies": {
+    "esbuild": "^0.21.0"
+  },
+  "author": {
+    "name": "Natalia Quintero"
+  },
+  "strapi": {
+    "uuid": "natalia-quintero-blog"
+  },
+  "engines": {
+    "node": ">=18.0.0 <=22.x.x",
+    "npm": ">=6.0.0"
+  },
+  "license": "MIT"
+}
