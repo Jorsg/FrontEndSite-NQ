@@ -606,8 +606,9 @@
         // Form submission
         document.getElementById('contactForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+            console.log('📝 Formulario enviado');
 
-            const form = e
+            const form = e.target;
             const submitBtn = form.querySelector('.form-submit');
 
             //deshabilitar el botón de envío para evitar múltiples envíos
@@ -618,34 +619,57 @@
                 name: form.name.value,
                 email: form.email.value,
                 subject: form.subject.value,
-                message: form.message.value
+                message: form.message.value,
+                language: 'es'
             };
+            console.log('📦 Datos del formulario:', data);
+
+            const apiUrl = 'http://127.0.0.1:53904/api/contact';
+            console.log('🌐 URL de la API:', apiUrl);
 
             try
             {
-                const response = await fetch('http://localhost:5000/api/contact', {
+                console.log('🚀 Enviando petición...');
+                const response = await fetch(apiUrl, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify(data)
+                    body: JSON.stringify(data)                   
                 });
+                
+                console.log('📡 Respuesta recibida:', {
+                    status: response.status,
+                    statusText: response.statusText,
+                    ok: response.ok
+                });
+
                 if (response.ok) {
+                    const result = await response.json();
+                    console.log('✅ Respuesta del servidor:', result);
                     alert('¡Gracias por tu mensaje! Te responderé lo antes posible.');
                     form.reset();
                 } else {
+                    const errorText = await response.text();
+                    console.error('❌ Error del servidor:', {
+                        status: response.status,
+                        statusText: response.statusText,
+                        body: errorText
+                    });
                     alert('Hubo un error al enviar tu mensaje. Por favor, inténtalo de nuevo más tarde.');
                 }
             } catch (error) {
-                alert('Hubo un error al enviar tu mensaje. Por favor, inténtalo de nuevo más tarde.');
-                alert('Error de conexión. Por favor intenta más tarde.' + error);
+                console.error('🔥 Error de red o CORS:', {
+                    name: error.name,
+                    message: error.message,
+                    stack: error.stack
+                });
+                alert('Error de conexión: ' + error.message);
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.textContent = 'Enviar mensaje ';
+                console.log('🏁 Proceso completado');
             }
-
-           // alert('¡Gracias por tu mensaje! Te responderé lo antes posible.');
-           // e.target.reset();
         });
     </script>
 </body>
