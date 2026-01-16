@@ -536,6 +536,16 @@
 
     </main>
 
+    <!-- Popup de mensajes -->
+    <div class="popup-overlay" id="popupOverlay">
+        <div class="popup-container">
+            <div class="popup-icon" id="popupIcon"></div>
+            <h3 class="popup-title" id="popupTitle"></h3>
+            <p class="popup-message" id="popupMessage"></p>
+            <button class="popup-close" id="popupClose">Aceptar</button>
+        </div>
+    </div>
+
     <!-- Footer -->
     <footer role="contentinfo">
         <div class="footer-container">
@@ -603,15 +613,56 @@
             });
         });
 
+        // Función para mostrar el popup
+        function showPopup(type, title, message) {
+            const overlay = document.getElementById('popupOverlay');
+            const icon = document.getElementById('popupIcon');
+            const titleEl = document.getElementById('popupTitle');
+            const messageEl = document.getElementById('popupMessage');
+
+            // Configurar icono según el tipo
+            icon.className = 'popup-icon ' + type;
+            icon.innerHTML = type === 'success' ? '✓' : '✕';
+
+            // Configurar contenido
+            titleEl.textContent = title;
+            messageEl.textContent = message;
+
+            // Mostrar popup
+            overlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Función para cerrar el popup
+        function closePopup() {
+            const overlay = document.getElementById('popupOverlay');
+            overlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // Event listeners para cerrar el popup
+        document.getElementById('popupClose').addEventListener('click', closePopup);
+        document.getElementById('popupOverlay').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closePopup();
+            }
+        });
+
+        // Cerrar con tecla Escape
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closePopup();
+            }
+        });
+
         // Form submission
         document.getElementById('contactForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            console.log('📝 Formulario enviado');
 
             const form = e.target;
             const submitBtn = form.querySelector('.form-submit');
 
-            //deshabilitar el botón de envío para evitar múltiples envíos
+            // Deshabilitar el botón de envío para evitar múltiples envíos
             submitBtn.disabled = true;
             submitBtn.textContent = 'Enviando...';
 
@@ -622,53 +673,47 @@
                 message: form.message.value,
                 language: 'es'
             };
-            console.log('📦 Datos del formulario:', data);
 
             const apiUrl = 'http://127.0.0.1:53904/api/contact';
-            console.log('🌐 URL de la API:', apiUrl);
 
-            try
-            {
-                console.log('🚀 Enviando petición...');
+            try {
                 const response = await fetch(apiUrl, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify(data)                   
-                });
-                
-                console.log('📡 Respuesta recibida:', {
-                    status: response.status,
-                    statusText: response.statusText,
-                    ok: response.ok
+                    body: JSON.stringify(data)
                 });
 
                 if (response.ok) {
                     const result = await response.json();
-                    console.log('✅ Respuesta del servidor:', result);
-                    alert('¡Gracias por tu mensaje! Te responderé lo antes posible.');
+                    showPopup(
+                        'success',
+                        '¡Mensaje enviado!',
+                        'Gracias por contactarme. Te responderé lo antes posible.'
+                    );
                     form.reset();
                 } else {
                     const errorText = await response.text();
-                    console.error('❌ Error del servidor:', {
-                        status: response.status,
-                        statusText: response.statusText,
-                        body: errorText
-                    });
-                    alert('Hubo un error al enviar tu mensaje. Por favor, inténtalo de nuevo más tarde.');
+                    showPopup(
+                        'error',
+                        'Error al enviar',
+                        'Hubo un problema al enviar tu mensaje. Por favor, inténtalo de nuevo más tarde.'
+                    );
                 }
             } catch (error) {
-                console.error('🔥 Error de red o CORS:', {
+                console.error('Error de red o CORS:', {
                     name: error.name,
-                    message: error.message,
-                    stack: error.stack
+                    message: error.message
                 });
-                alert('Error de conexión: ' + error.message);
+                showPopup(
+                    'error',
+                    'Error de conexión',
+                    'No se pudo establecer conexión con el servidor. Verifica tu conexión a internet e inténtalo de nuevo.'
+                );
             } finally {
                 submitBtn.disabled = false;
-                submitBtn.textContent = 'Enviar mensaje ';
-                console.log('🏁 Proceso completado');
+                submitBtn.textContent = 'Enviar mensaje';
             }
         });
     </script>
