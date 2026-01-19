@@ -420,51 +420,9 @@
                 Consejos y reflexiones sobre el mundo de la traducción
             </p>
         </div>
-        <div class="blog-container">
-            <article class="blog-card">
-                <div class="blog-image">
-                    <div class="blog-image-icon">📝</div>
-                </div>
-                <div class="blog-content">
-                    <div class="blog-date">15 de Noviembre 2024</div>
-                    <h3 class="blog-title">La importancia de la traducción certificada para la inmigración</h3>
-                    <p class="blog-excerpt">
-                        Descubre por qué una traducción certificada es esencial para tus trámites 
-                        de inmigración y cómo puede acelerar tu proceso.
-                    </p>
-                    <a href="#" class="blog-link">Leer artículo →</a>
-                </div>
-            </article>
-
-            <article class="blog-card">
-                <div class="blog-image">
-                    <div class="blog-image-icon">🌍</div>
-                </div>
-                <div class="blog-content">
-                    <div class="blog-date">8 de Noviembre 2024</div>
-                    <h3 class="blog-title">Localización vs Traducción: ¿Cuál es la diferencia?</h3>
-                    <p class="blog-excerpt">
-                        Comprende los matices entre traducción y localización para optimizar 
-                        tu estrategia de comunicación internacional.
-                    </p>
-                    <a href="#" class="blog-link">Leer artículo →</a>
-                </div>
-            </article>
-
-            <article class="blog-card">
-                <div class="blog-image">
-                    <div class="blog-image-icon">✈️</div>
-                </div>
-                <div class="blog-content">
-                    <div class="blog-date">1 de Noviembre 2024</div>
-                    <h3 class="blog-title">Preparar tus documentos para estudiar en el extranjero</h3>
-                    <p class="blog-excerpt">
-                        Una guía completa de los documentos a traducir para tu solicitud universitaria 
-                        y cómo asegurar su validez legal.
-                    </p>
-                    <a href="#" class="blog-link">Leer artículo →</a>
-                </div>
-            </article>
+        <div class="blog-container" id="blogContainer">
+            <!-- Los artículos se cargarán dinámicamente desde Strapi -->
+            <div class="blog-loading">Cargando artículos...</div>
         </div>
     </section>
 
@@ -497,6 +455,7 @@
                         <div class="contact-item-content">
                             <h4>Teléfono</h4>
                             <p>+1 (514) 430-6401</p>
+                            <p>+1 (514) 893-2069</p>
                         </div>
                     </div>
                     <div class="contact-item">
@@ -599,6 +558,114 @@
     </footer>
 
     <script>
+        // ============================================
+        // STRAPI BLOG INTEGRATION
+        // ============================================
+        const STRAPI_URL = 'http://localhost:1337';
+        const CURRENT_LOCALE = 'es';
+
+        // Artículos de ejemplo (fallback si Strapi no está disponible)
+        const fallbackArticles = [
+            {
+                id: 1,
+                title: 'La importancia de la traducción certificada para la inmigración',
+                excerpt: 'Descubre por qué una traducción certificada es esencial para tus trámites de inmigración y cómo puede acelerar tu proceso.',
+                icon: '📝',
+                publishedDate: '2024-11-15',
+                slug: 'traduccion-certificada-inmigracion'
+            },
+            {
+                id: 2,
+                title: 'Localización vs Traducción: ¿Cuál es la diferencia?',
+                excerpt: 'Comprende los matices entre traducción y localización para optimizar tu estrategia de comunicación internacional.',
+                icon: '🌍',
+                publishedDate: '2024-11-08',
+                slug: 'localizacion-vs-traduccion'
+            },
+            {
+                id: 3,
+                title: 'Preparar tus documentos para estudiar en el extranjero',
+                excerpt: 'Una guía completa de los documentos a traducir para tu solicitud universitaria y cómo asegurar su validez legal.',
+                icon: '✈️',
+                publishedDate: '2024-11-01',
+                slug: 'documentos-estudiar-extranjero'
+            }
+        ];
+
+        // Formatear fecha en español
+        function formatDate(dateString) {
+            const options = { day: 'numeric', month: 'long', year: 'numeric' };
+            return new Date(dateString).toLocaleDateString('es-ES', options);
+        }
+
+        // Crear HTML de un artículo
+        function createArticleCard(article) {
+            const imageUrl = article.coverImage?.url
+                ? `${STRAPI_URL}${article.coverImage.url}`
+                : null;
+
+            return `
+                <article class="blog-card">
+                    <div class="blog-image">
+                        ${imageUrl
+                            ? `<img src="${imageUrl}" alt="${article.title}" class="blog-cover-img">`
+                            : `<div class="blog-image-icon">${article.icon || '📝'}</div>`
+                        }
+                    </div>
+                    <div class="blog-content">
+                        <div class="blog-date">${formatDate(article.publishedDate)}</div>
+                        <h3 class="blog-title">${article.title}</h3>
+                        <p class="blog-excerpt">${article.excerpt}</p>
+                        <a href="#blog/${article.slug}" class="blog-link">Leer artículo →</a>
+                    </div>
+                </article>
+            `;
+        }
+
+        // Cargar artículos desde Strapi
+        async function loadBlogArticles() {
+            const container = document.getElementById('blogContainer');
+
+            try {
+                const response = await fetch(
+                    `${STRAPI_URL}/api/articles?sort=publishedDate:desc&pagination[limit]=3&populate=coverImage`
+                );
+
+                if (!response.ok) {
+                    throw new Error('API no disponible');
+                }
+
+                const result = await response.json();
+                const articles = result.data;
+
+                if (articles && articles.length > 0) {
+                    container.innerHTML = articles.map(item => createArticleCard({
+                        id: item.id,
+                        title: item.title,
+                        excerpt: item.excerpt,
+                        icon: item.icon,
+                        publishedDate: item.publishedDate,
+                        slug: item.slug,
+                        coverImage: item.coverImage
+                    })).join('');
+                } else {
+                    // Si no hay artículos en Strapi, mostrar fallback
+                    container.innerHTML = fallbackArticles.map(createArticleCard).join('');
+                }
+            } catch (error) {
+                console.log('Usando artículos de fallback:', error.message);
+                // Mostrar artículos de fallback si Strapi no está disponible
+                container.innerHTML = fallbackArticles.map(createArticleCard).join('');
+            }
+        }
+
+        // Cargar artículos cuando el DOM esté listo
+        document.addEventListener('DOMContentLoaded', loadBlogArticles);
+
+        // ============================================
+        // OTRAS FUNCIONALIDADES
+        // ============================================
+
         // Smooth scrolling
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
@@ -717,5 +784,14 @@
             }
         });
     </script>
+    <!-- Botón flotante de WhatsApp -->
+<a href="https://wa.me/15148932069?text=Hola%20Natalia,%20me%20gustar%C3%ADa%20solicitar%20informaci%C3%B3n%20sobre%20tus%20servicios%20de%20traducci%C3%B3n." 
+   class="whatsapp-float" 
+   target="_blank" 
+   rel="noopener noreferrer"
+   aria-label="Contactar por WhatsApp">
+    <img src="assets/iconos_redes_sociales/WhatsApp.png" alt="WhatsApp">
+</a>
+
 </body>
 </html>

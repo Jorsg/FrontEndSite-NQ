@@ -644,6 +644,20 @@
             opacity: 0.9;
         }
 
+        .blog-cover-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .blog-loading {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 3rem;
+            color: var(--verde-esmeralda);
+            font-size: 1.1rem;
+        }
+
         .blog-content {
             padding: 2.5rem;
         }
@@ -1127,7 +1141,34 @@
             .certifications-container,
             .blog-container {
                 grid-template-columns: 1fr;
-            }
+            }            
         }
+        /* Botón flotante de WhatsApp */
+.whatsapp-float {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 90px;
+    height: 90px;
+    background-color: #25D366;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.whatsapp-float:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4);
+}
+
+.whatsapp-float img {
+    width: 55px;
+    height: 55px;
+}
+
  
     
