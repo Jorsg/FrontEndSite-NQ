@@ -46,7 +46,7 @@
         }
 
         .logo-nav {
-            height: 48px;
+            height: 55px;
             /* filter: brightness(0) invert(1); */
             transition: transform 0.3s ease;
             cursor: pointer;
@@ -1168,6 +1168,28 @@
 .whatsapp-float img {
     width: 55px;
     height: 55px;
+}
+.banner-rotativo {
+    position: relative;
+    width: 100%;
+}
+
+.banner-img {
+    width: 100%;
+    display: block;
+    background: white;
+    padding: 3rem;
+    box-sizing: border-box;
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.banner-img.active {
+    opacity: 1;
+    position: relative;
 }
 
  

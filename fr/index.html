@@ -226,9 +226,12 @@
                     <a href="#services" class="btn-secondary">Découvrir mes services</a>
                 </div>
             </div>
-            <div class="hero-image-container">
-                <div class="hero-image-wrapper">
-                    <img src="../assets/img_6.jpg" alt="Natalia Quintero, traductrice professionnelle agréée à Montréal" class="hero-logo">
+            <div class="hero-image-wrapper">
+                <div class="banner-rotativo" id="bannerRotativo">
+                    <img src="../assets/Logo_modo_azul.png" alt="Banner 1" class="banner-img active">
+                    <img src="../assets/img_5.jpg" alt="Banner 2" class="banner-img">
+                    <img src="../assets/img_7.jpg" alt="Banner 3" class="banner-img">
+                    <img src="../assets/img_8.jpg" alt="Banner 4" class="banner-img">
                 </div>
             </div>
         </div>
@@ -612,6 +615,22 @@
                 }
             });
         });
+
+        // Rotation du banner
+        function iniciarBannerRotativo() {
+            const imagenes = document.querySelectorAll('#bannerRotativo .banner-img');
+            if (imagenes.length === 0) return;
+
+            let indiceActual = 0;
+
+            setInterval(() => {
+                imagenes[indiceActual].classList.remove('active');
+                indiceActual = (indiceActual + 1) % imagenes.length;
+                imagenes[indiceActual].classList.add('active');
+            }, 3000);
+        }
+
+        document.addEventListener('DOMContentLoaded', iniciarBannerRotativo);
 
         // Fonction pour afficher le popup
         function showPopup(type, title, message) {

@@ -68,3 +68,21 @@ if (contactForm) {
         contactForm.reset();
     });
 }
+//Banner rotativo
+function inciarBannerRotativo(){
+    const imagenes = document.querySelectorAll('#bannerRotativo .banner-img');
+    let indiceActual =0;
+
+    setInterval(() =>{
+        //Quitar clase active de la imagen actual
+        imagenes[inciarBannerRotativo].classList.remove('active');
+
+        //Avanzar al siguiente indice (vuelve a 0 si llega al final)
+        indiceActual = (indiceActual + 1) % imagenes.length;
+
+        //Agregar clase active a la nueva imagen
+        imagenes[indiceActual].classList.add('active');
+    }, 300); //cambia cada 3 segundos
+}
+//Iniciar cuando el DOM este listo
+document.addEventListener('DOMContentLoaded', inciarBannerRotativo):
