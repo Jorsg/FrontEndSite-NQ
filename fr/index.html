@@ -185,7 +185,7 @@
     <nav id="navbar" role="navigation" aria-label="Navigation principale">
         <div class="nav-container">
             <a href="#accueil" aria-label="Aller à l'accueil">
-                <img src="../assets/logo-claro1.png" alt="Logo Natalia Quintero - Traductrice Professionnelle" class="logo-nav">
+                <img src="../assets/Logo_NQ_P.png" alt="Logo Natalia Quintero - Traductrice Professionnelle" class="logo-nav">
             </a>
             <ul class="nav-links">
                 <li><a href="#accueil">Accueil</a></li>
@@ -423,51 +423,9 @@
                 Conseils et réflexions sur le monde de la traduction
             </p>
         </div>
-        <div class="blog-container">
-            <article class="blog-card">
-                <div class="blog-image">
-                    <div class="blog-image-icon">📝</div>
-                </div>
-                <div class="blog-content">
-                    <div class="blog-date">15 Novembre 2024</div>
-                    <h3 class="blog-title">L'importance de la traduction certifiée pour l'immigration</h3>
-                    <p class="blog-excerpt">
-                        Découvrez pourquoi une traduction certifiée est essentielle pour vos démarches
-                        d'immigration et comment elle peut accélérer votre processus.
-                    </p>
-                    <a href="#" class="blog-link">Lire l'article →</a>
-                </div>
-            </article>
-
-            <article class="blog-card">
-                <div class="blog-image">
-                    <div class="blog-image-icon">🌍</div>
-                </div>
-                <div class="blog-content">
-                    <div class="blog-date">8 Novembre 2024</div>
-                    <h3 class="blog-title">Localisation vs Traduction: Quelle différence?</h3>
-                    <p class="blog-excerpt">
-                        Comprendre les nuances entre traduction et localisation pour optimiser
-                        votre stratégie de communication internationale.
-                    </p>
-                    <a href="#" class="blog-link">Lire l'article →</a>
-                </div>
-            </article>
-
-            <article class="blog-card">
-                <div class="blog-image">
-                    <div class="blog-image-icon">✈️</div>
-                </div>
-                <div class="blog-content">
-                    <div class="blog-date">1 Novembre 2024</div>
-                    <h3 class="blog-title">Préparer vos documents pour étudier à l'étranger</h3>
-                    <p class="blog-excerpt">
-                        Un guide complet des documents à traduire pour votre candidature universitaire
-                        et comment assurer leur validité légale.
-                    </p>
-                    <a href="#" class="blog-link">Lire l'article →</a>
-                </div>
-            </article>
+        <div class="blog-container" id="blogContainer">
+            <!-- Les articles seront chargés dynamiquement depuis Strapi -->
+            <div class="blog-loading">Chargement des articles...</div>
         </div>
     </section>
 
@@ -492,14 +450,15 @@
                         <div class="contact-item-icon">📧</div>
                         <div class="contact-item-content">
                             <h4>Email</h4>
-                            <p>contact@nataliaquintero.com</p>
+                            <p>contact@nataliaquintero.ca</p>
+                            <p>infotraduxai@gmail.com</p>
                         </div>
                     </div>
                     <div class="contact-item">
                         <div class="contact-item-icon">📱</div>
                         <div class="contact-item-content">
                             <h4>Téléphone</h4>
-                            <p>+1 (514) 430-6401</p>
+                            <p>+1 (514) 893-2069</p>
                         </div>
                     </div>
                     <div class="contact-item">
@@ -602,6 +561,132 @@
     </footer>
 
     <script>
+        // ============================================
+        // INTÉGRATION BLOG STRAPI
+        // ============================================
+        const STRAPI_URL = 'http://localhost:1337';
+        const CURRENT_LOCALE = 'fr';
+
+        // Articles de secours (si Strapi n'est pas disponible)
+        const fallbackArticles = [
+            {
+                id: 1,
+                title: 'L\'importance de la traduction certifiée pour l\'immigration',
+                excerpt: 'Découvrez pourquoi une traduction certifiée est essentielle pour vos démarches d\'immigration et comment elle peut accélérer votre processus.',
+                icon: '📝',
+                publishedDate: '2024-11-15',
+                slug: 'traduction-certifiee-immigration'
+            },
+            {
+                id: 2,
+                title: 'Localisation vs Traduction: Quelle différence?',
+                excerpt: 'Comprendre les nuances entre traduction et localisation pour optimiser votre stratégie de communication internationale.',
+                icon: '🌍',
+                publishedDate: '2024-11-08',
+                slug: 'localisation-vs-traduction'
+            },
+            {
+                id: 3,
+                title: 'Préparer vos documents pour étudier à l\'étranger',
+                excerpt: 'Un guide complet des documents à traduire pour votre candidature universitaire et comment assurer leur validité légale.',
+                icon: '✈️',
+                publishedDate: '2024-11-01',
+                slug: 'documents-etudier-etranger'
+            }
+        ];
+
+        // Formater la date en français
+        function formatDate(dateString) {
+            const options = { day: 'numeric', month: 'long', year: 'numeric' };
+            return new Date(dateString).toLocaleDateString('fr-FR', options);
+        }
+
+        // Créer le HTML d'un article
+        function createArticleCard(article) {
+            const imageUrl = article.coverImage?.url
+                ? `${STRAPI_URL}${article.coverImage.url}`
+                : null;
+
+            return `
+                <article class="blog-card">
+                    <div class="blog-image">
+                        ${imageUrl
+                            ? `<img src="${imageUrl}" alt="${article.title}" class="blog-cover-img">`
+                            : `<div class="blog-image-icon">${article.icon || '📝'}</div>`
+                        }
+                    </div>
+                    <div class="blog-content">
+                        <div class="blog-date">${formatDate(article.publishedDate)}</div>
+                        <h3 class="blog-title">${article.title}</h3>
+                        <p class="blog-excerpt">${article.excerpt}</p>
+                        <a href="#blog/${article.slug}" class="blog-link">Lire l'article →</a>
+                    </div>
+                </article>
+            `;
+        }
+
+        // Charger les articles depuis Strapi
+        async function loadBlogArticles() {
+            const container = document.getElementById('blogContainer');
+
+            try {
+                const response = await fetch(
+                    `${STRAPI_URL}/api/articles?sort=publishedDate:desc&pagination[limit]=3&populate=coverImage`
+                );
+
+                if (!response.ok) {
+                    throw new Error('API non disponible');
+                }
+
+                const result = await response.json();
+                const articles = result.data;
+
+                if (articles && articles.length > 0) {
+                    container.innerHTML = articles.map(item => createArticleCard({
+                        id: item.id,
+                        title: item.title,
+                        excerpt: item.excerpt,
+                        icon: item.icon,
+                        publishedDate: item.publishedDate,
+                        slug: item.slug,
+                        coverImage: item.coverImage
+                    })).join('');
+                } else {
+                    // Si pas d'articles dans Strapi, afficher le fallback
+                    container.innerHTML = fallbackArticles.map(createArticleCard).join('');
+                }
+            } catch (error) {
+                console.log('Utilisation des articles de secours:', error.message);
+                // Afficher les articles de secours si Strapi n'est pas disponible
+                container.innerHTML = fallbackArticles.map(createArticleCard).join('');
+            }
+        }
+
+        // Charger les articles quand le DOM est prêt
+        document.addEventListener('DOMContentLoaded', loadBlogArticles);
+
+        // ============================================
+        // BANNER ROTATIF
+        // ============================================
+        function iniciarBannerRotativo() {
+            const imagenes = document.querySelectorAll('#bannerRotativo .banner-img');
+            if (imagenes.length === 0) return;
+
+            let indiceActual = 0;
+
+            setInterval(() => {
+                imagenes[indiceActual].classList.remove('active');
+                indiceActual = (indiceActual + 1) % imagenes.length;
+                imagenes[indiceActual].classList.add('active');
+            }, 3000); // Change toutes les 3 secondes
+        }
+
+        document.addEventListener('DOMContentLoaded', iniciarBannerRotativo);
+
+        // ============================================
+        // AUTRES FONCTIONNALITÉS
+        // ============================================
+
         // Smooth scrolling
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
@@ -615,22 +700,6 @@
                 }
             });
         });
-
-        // Rotation du banner
-        function iniciarBannerRotativo() {
-            const imagenes = document.querySelectorAll('#bannerRotativo .banner-img');
-            if (imagenes.length === 0) return;
-
-            let indiceActual = 0;
-
-            setInterval(() => {
-                imagenes[indiceActual].classList.remove('active');
-                indiceActual = (indiceActual + 1) % imagenes.length;
-                imagenes[indiceActual].classList.add('active');
-            }, 3000);
-        }
-
-        document.addEventListener('DOMContentLoaded', iniciarBannerRotativo);
 
         // Fonction pour afficher le popup
         function showPopup(type, title, message) {

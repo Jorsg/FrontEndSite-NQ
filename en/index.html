@@ -185,7 +185,7 @@
     <nav id="navbar" role="navigation" aria-label="Main navigation">
         <div class="nav-container">
             <a href="#home" aria-label="Go to home">
-                <img src="../assets/logo-claro1.png" alt="Natalia Quintero Logo - Professional Translator" class="logo-nav">
+                <img src="../assets/Logo_NQ_P.png" alt="Natalia Quintero Logo - Professional Translator" class="logo-nav">
             </a>
             <ul class="nav-links">
                 <li><a href="#home">Home</a></li>
@@ -423,51 +423,9 @@
                 Tips and reflections on the world of translation
             </p>
         </div>
-        <div class="blog-container">
-            <article class="blog-card">
-                <div class="blog-image">
-                    <div class="blog-image-icon">📝</div>
-                </div>
-                <div class="blog-content">
-                    <div class="blog-date">November 15, 2024</div>
-                    <h3 class="blog-title">The importance of certified translation for immigration</h3>
-                    <p class="blog-excerpt">
-                        Discover why certified translation is essential for your immigration
-                        procedures and how it can speed up your process.
-                    </p>
-                    <a href="#" class="blog-link">Read article →</a>
-                </div>
-            </article>
-
-            <article class="blog-card">
-                <div class="blog-image">
-                    <div class="blog-image-icon">🌍</div>
-                </div>
-                <div class="blog-content">
-                    <div class="blog-date">November 8, 2024</div>
-                    <h3 class="blog-title">Localization vs Translation: What's the difference?</h3>
-                    <p class="blog-excerpt">
-                        Understand the nuances between translation and localization to optimize
-                        your international communication strategy.
-                    </p>
-                    <a href="#" class="blog-link">Read article →</a>
-                </div>
-            </article>
-
-            <article class="blog-card">
-                <div class="blog-image">
-                    <div class="blog-image-icon">✈️</div>
-                </div>
-                <div class="blog-content">
-                    <div class="blog-date">November 1, 2024</div>
-                    <h3 class="blog-title">Preparing your documents to study abroad</h3>
-                    <p class="blog-excerpt">
-                        A complete guide to the documents to translate for your university application
-                        and how to ensure their legal validity.
-                    </p>
-                    <a href="#" class="blog-link">Read article →</a>
-                </div>
-            </article>
+        <div class="blog-container" id="blogContainer">
+            <!-- Articles will be loaded dynamically from Strapi -->
+            <div class="blog-loading">Loading articles...</div>
         </div>
     </section>
 
@@ -492,14 +450,15 @@
                         <div class="contact-item-icon">📧</div>
                         <div class="contact-item-content">
                             <h4>Email</h4>
-                            <p>contact@nataliaquintero.com</p>
+                            <p>contact@nataliaquintero.ca</p>
+                            <p>infotraduxai@gmail.com</p>
                         </div>
                     </div>
                     <div class="contact-item">
                         <div class="contact-item-icon">📱</div>
                         <div class="contact-item-content">
                             <h4>Phone</h4>
-                            <p>+1 (514) 430-6401</p>
+                              <p>+1 (514) 893-2069</p>
                         </div>
                     </div>
                     <div class="contact-item">
@@ -602,6 +561,132 @@
     </footer>
 
     <script>
+        // ============================================
+        // STRAPI BLOG INTEGRATION
+        // ============================================
+        const STRAPI_URL = 'http://localhost:1337';
+        const CURRENT_LOCALE = 'en';
+
+        // Fallback articles (if Strapi is not available)
+        const fallbackArticles = [
+            {
+                id: 1,
+                title: 'The importance of certified translation for immigration',
+                excerpt: 'Discover why certified translation is essential for your immigration procedures and how it can speed up your process.',
+                icon: '📝',
+                publishedDate: '2024-11-15',
+                slug: 'certified-translation-immigration'
+            },
+            {
+                id: 2,
+                title: 'Localization vs Translation: What\'s the difference?',
+                excerpt: 'Understand the nuances between translation and localization to optimize your international communication strategy.',
+                icon: '🌍',
+                publishedDate: '2024-11-08',
+                slug: 'localization-vs-translation'
+            },
+            {
+                id: 3,
+                title: 'Preparing your documents to study abroad',
+                excerpt: 'A complete guide to the documents to translate for your university application and how to ensure their legal validity.',
+                icon: '✈️',
+                publishedDate: '2024-11-01',
+                slug: 'documents-study-abroad'
+            }
+        ];
+
+        // Format date in English
+        function formatDate(dateString) {
+            const options = { day: 'numeric', month: 'long', year: 'numeric' };
+            return new Date(dateString).toLocaleDateString('en-US', options);
+        }
+
+        // Create article HTML card
+        function createArticleCard(article) {
+            const imageUrl = article.coverImage?.url
+                ? `${STRAPI_URL}${article.coverImage.url}`
+                : null;
+
+            return `
+                <article class="blog-card">
+                    <div class="blog-image">
+                        ${imageUrl
+                            ? `<img src="${imageUrl}" alt="${article.title}" class="blog-cover-img">`
+                            : `<div class="blog-image-icon">${article.icon || '📝'}</div>`
+                        }
+                    </div>
+                    <div class="blog-content">
+                        <div class="blog-date">${formatDate(article.publishedDate)}</div>
+                        <h3 class="blog-title">${article.title}</h3>
+                        <p class="blog-excerpt">${article.excerpt}</p>
+                        <a href="#blog/${article.slug}" class="blog-link">Read article →</a>
+                    </div>
+                </article>
+            `;
+        }
+
+        // Load articles from Strapi
+        async function loadBlogArticles() {
+            const container = document.getElementById('blogContainer');
+
+            try {
+                const response = await fetch(
+                    `${STRAPI_URL}/api/articles?sort=publishedDate:desc&pagination[limit]=3&populate=coverImage`
+                );
+
+                if (!response.ok) {
+                    throw new Error('API not available');
+                }
+
+                const result = await response.json();
+                const articles = result.data;
+
+                if (articles && articles.length > 0) {
+                    container.innerHTML = articles.map(item => createArticleCard({
+                        id: item.id,
+                        title: item.title,
+                        excerpt: item.excerpt,
+                        icon: item.icon,
+                        publishedDate: item.publishedDate,
+                        slug: item.slug,
+                        coverImage: item.coverImage
+                    })).join('');
+                } else {
+                    // If no articles in Strapi, show fallback
+                    container.innerHTML = fallbackArticles.map(createArticleCard).join('');
+                }
+            } catch (error) {
+                console.log('Using fallback articles:', error.message);
+                // Show fallback articles if Strapi is not available
+                container.innerHTML = fallbackArticles.map(createArticleCard).join('');
+            }
+        }
+
+        // Load articles when DOM is ready
+        document.addEventListener('DOMContentLoaded', loadBlogArticles);
+
+        // ============================================
+        // ROTATING BANNER
+        // ============================================
+        function iniciarBannerRotativo() {
+            const imagenes = document.querySelectorAll('#bannerRotativo .banner-img');
+            if (imagenes.length === 0) return;
+
+            let indiceActual = 0;
+
+            setInterval(() => {
+                imagenes[indiceActual].classList.remove('active');
+                indiceActual = (indiceActual + 1) % imagenes.length;
+                imagenes[indiceActual].classList.add('active');
+            }, 3000); // Changes every 3 seconds
+        }
+
+        document.addEventListener('DOMContentLoaded', iniciarBannerRotativo);
+
+        // ============================================
+        // OTHER FUNCTIONALITIES
+        // ============================================
+
         // Smooth scrolling
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
@@ -615,22 +700,6 @@
                 }
             });
         });
-
-        // Banner rotation
-        function iniciarBannerRotativo() {
-            const imagenes = document.querySelectorAll('#bannerRotativo .banner-img');
-            if (imagenes.length === 0) return;
-
-            let indiceActual = 0;
-
-            setInterval(() => {
-                imagenes[indiceActual].classList.remove('active');
-                indiceActual = (indiceActual + 1) % imagenes.length;
-                imagenes[indiceActual].classList.add('active');
-            }, 3000);
-        }
-
-        document.addEventListener('DOMContentLoaded', iniciarBannerRotativo);
 
         // Function to show popup
         function showPopup(type, title, message) {
