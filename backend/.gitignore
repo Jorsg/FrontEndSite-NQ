@@ -22,6 +22,15 @@ npm-debug.log*
 .idea/
 .vscode/
 
+# Deploy
+Dockerfile
+docker-compose*.yml
+.dockerignore
+deploy-*.ps1
+deploy-*.sh
+upload-*.ps1
+upload-*.sh
+
 # OS
 .DS_Store
 Thumbs.db
