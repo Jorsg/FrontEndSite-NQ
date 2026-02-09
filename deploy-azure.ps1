@@ -8,8 +8,7 @@ $RESOURCE_GROUP = "rg-nataliaquintero"
 $VM_NAME = "vm-nataliaquintero"
 $LOCATION = "canadacentral"
 $VM_SIZE = "Standard_B1s"
-$ADMIN_USER = "azureuser"
-$ADMIN_PASSWORD = "NataliaQ2025!"  # Cambiar por una contrasena segura
+
 
 # ============================================
 # PASO 1: Login en Azure

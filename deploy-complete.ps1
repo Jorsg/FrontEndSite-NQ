@@ -4,7 +4,7 @@
 # Este script crea la VM Y sube el sitio web
 
 param(
-    [string]$AdminPassword = "NataliaQ2025!"
+    [string]$AdminPassword = ""
 )
 
 # Variables
@@ -12,7 +12,7 @@ $RESOURCE_GROUP = "rg-nataliaquintero"
 $VM_NAME = "vm-nataliaquintero"
 $LOCATION = "canadacentral"
 $VM_SIZE = "Standard_B1s"
-$ADMIN_USER = "azureuser"
+$ADMIN_USER = ""
 $LOCAL_PATH = "d:\Repos\Web-Natalia_Quintero\website"
 
 Write-Host @"
