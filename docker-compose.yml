@@ -1,7 +1,7 @@
 services:
   # Tu sitio web existente
   web:
-    image: 8e15f619e79/nq-website:latest
+    image: nqdevops/nq-website:latest
     container_name: natalia-quintero-website
     ports:
       - "8080:80"
@@ -15,7 +15,7 @@ services:
 
   # Strapi CMS para el blog
   strapi:
-    image: 8e15f619e79/nq-strapi:latest
+    image: nqdevops/nq-strapi:latest
     container_name: natalia-quintero-strapi
     ports:
       - "1337:1337"
