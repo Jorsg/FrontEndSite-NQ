@@ -11,6 +11,7 @@ services:
       - ./assets:/usr/share/nginx/html/assets:ro
       - ./en:/usr/share/nginx/html/en:ro
       - ./fr:/usr/share/nginx/html/fr:ro
+      - ./favicon.ico:/usr/share/nginx/html/favicon.ico:ro
     restart: unless-stopped
 
   # Strapi CMS para el blog

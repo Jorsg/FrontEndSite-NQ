@@ -7,8 +7,8 @@ WORKDIR /srv/app
 # Copiar archivos de configuración
 COPY package.json ./
 
-# Instalar dependencias
-RUN npm install
+# Instalar dependencias (omitir paquetes opcionales para acelerar)
+RUN npm install --omit=optional --prefer-offline
 
 # Copiar el resto del proyecto
 COPY . .
