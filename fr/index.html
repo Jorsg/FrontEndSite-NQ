@@ -567,7 +567,7 @@
         // ============================================
         // INTÉGRATION BLOG STRAPI
         // ============================================
-        const STRAPI_URL = 'http://nataliaquintero.ca:1337';
+        const STRAPI_URL = 'https://nataliaquintero.ca/strapi';
         const CURRENT_LOCALE = 'fr';
 
         // Articles de secours (si Strapi n'est pas disponible)
@@ -765,7 +765,7 @@
                 language: 'fr'
             };
 
-            const apiUrl = 'http://nataliaquintero.ca:5000/api/contact';
+            const apiUrl = '/api/contact';
 
             try {
                 const response = await fetch(apiUrl, {
