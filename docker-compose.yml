@@ -20,7 +20,7 @@ services:
     ports:
       - "1337:1337"
     environment:
-      - NODE_ENV=development
+      - NODE_ENV=production
       - HOST=0.0.0.0
       - PORT=1337
       - APP_KEYS=toBeModified1,toBeModified2,toBeModified3,toBeModified4
