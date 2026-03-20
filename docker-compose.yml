@@ -29,6 +29,7 @@ services:
       - ADMIN_JWT_SECRET=tobemodified
       - TRANSFER_TOKEN_SALT=tobemodified
       - JWT_SECRET=tobemodified
+      - STRAPI_URL=https://nataliaquintero.ca
     volumes:
       - strapi_data:/srv/app/.tmp
       - strapi_uploads:/srv/app/public/uploads
