@@ -203,7 +203,7 @@
             <a href="#inicio" aria-label="Ir al inicio">
                 <img src="assets/Logo_NQ_P.png" alt="Logo Natalia Quintero - Traductora Profesional" class="logo-nav">
             </a>
-            <ul class="nav-links">
+            <ul class="nav-links" id="navLinks">
                 <li><a href="#inicio">Inicio</a></li>
                 <li><a href="#acerca">Acerca de</a></li>
                 <li><a href="#servicios">Servicios</a></li>
@@ -211,11 +211,16 @@
                 <li><a href="#contacto">Contacto</a></li>
                 <li><a href="#blog">Blog</a></li>
             </ul>
-            <div class="language-switcher">
+            <div class="language-switcher" id="langSwitcher">
                     <a href="/" class="lang-btn active" aria-label="Español">ES</a>
                     <a href="/en/" class="lang-btn" aria-label="English">EN</a>
                     <a href="/fr/" class="lang-btn" aria-label="Français">FR</a>
                 </div>
+            <button class="hamburger" id="hamburger" aria-label="Alternar navegación" aria-expanded="false">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
         </div>
     </nav>
     </header>
@@ -826,5 +831,26 @@
     <img src="assets/iconos_redes_sociales/WhatsApp.png" alt="WhatsApp">
 </a>
 
+<script>
+    (function() {
+        var btn = document.getElementById('hamburger');
+        var links = document.getElementById('navLinks');
+        var lang = document.getElementById('langSwitcher');
+        btn.addEventListener('click', function() {
+            var open = links.classList.toggle('open');
+            lang.classList.toggle('open', open);
+            btn.classList.toggle('open', open);
+            btn.setAttribute('aria-expanded', open);
+        });
+        links.querySelectorAll('a').forEach(function(a) {
+            a.addEventListener('click', function() {
+                links.classList.remove('open');
+                lang.classList.remove('open');
+                btn.classList.remove('open');
+                btn.setAttribute('aria-expanded', 'false');
+            });
+        });
+    })();
+</script>
 </body>
 </html>
