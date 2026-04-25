@@ -733,15 +733,18 @@
                 name: document.getElementById('contactName').value.trim(),
                 email: document.getElementById('contactEmail').value.trim(),
                 subject: document.getElementById('contactSubject').value,
-                message: document.getElementById('contactMessage').value.trim()
+                message: document.getElementById('contactMessage').value.trim(),
+                language: CURRENT_LOCALE
             };
-            const apiUrl = 'https://nataliaquintero.ca';
+            //console.log('contact form data:', data);
+            //const apiUrl = 'https://nataliaquintero.ca';
+            const apiUrl = 'http://localhost:5000/api/contact'
 
             try {
-                const response = await fetch(`${apiUrl}/api/contacts`, {
+                const response = await fetch(`${apiUrl}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ data })
+                    body: JSON.stringify(data)
                 });
                 if (!response.ok) throw new Error('Error en el servidor');
                 status.textContent = '¡Mensaje enviado con éxito! Nos pondremos en contacto pronto.';
