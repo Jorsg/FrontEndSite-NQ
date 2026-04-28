@@ -24,5 +24,35 @@ module.exports = {
         },
       });
     }
+
+    const publicRole = await strapi
+      .query('plugin::users-permissions.role')
+      .findOne({ where: { type: 'public' } });
+
+    if (publicRole) {
+      const permissions = await strapi
+        .query('plugin::users-permissions.permission')
+        .findMany({ where: { role: publicRole.id } });
+
+      const articleActions = ['api::article.article.find', 'api::article.article.findOne'];
+
+      for (const action of articleActions) {
+        const existing = permissions.find((p) => p.action === action);
+        if (!existing) {
+          await strapi.query('plugin::users-permissions.permission').create({
+            data: {
+              action,
+              role: publicRole.id,
+              enabled: true,
+            },
+          });
+        } else if (!existing.enabled) {
+          await strapi.query('plugin::users-permissions.permission').update({
+            where: { id: existing.id },
+            data: { enabled: true },
+          });
+        }
+      }
+    }
   },
 };
