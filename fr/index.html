@@ -591,6 +591,7 @@
 
     <script>
         const STRAPI_URL = 'https://nataliaquintero.ca/strapi';
+        const STRAPI_API_TOKEN = '';
         const CURRENT_LOCALE = 'fr';
 
         const fallbackArticles = [
@@ -623,7 +624,8 @@
         async function loadBlogArticles() {
             const container = document.getElementById('blogContainer');
             try {
-                const response = await fetch(`${STRAPI_URL}/api/articles?sort=publishedDate:desc&pagination[limit]=3&populate=coverImage&locale=fr`);
+                const headers = STRAPI_API_TOKEN ? { 'Authorization': `Bearer ${STRAPI_API_TOKEN}` } : {};
+                const response = await fetch(`${STRAPI_URL}/api/articles?sort=publishedDate:desc&pagination[limit]=3&populate=coverImage&locale=fr`, { headers });
                 if (!response.ok) throw new Error('API indisponible');
                 const result = await response.json();
                 const articles = result.data;

@@ -3,56 +3,48 @@
 module.exports = {
   register(/* { strapi } */) {},
   async bootstrap({ strapi }) {
-    const rolesCount = await strapi
-      .query('plugin::users-permissions.role')
-      .count();
+    try {
+      const permQuery = strapi.query('plugin::users-permissions.permission');
+      const roleQuery = strapi.query('plugin::users-permissions.role');
 
-    if (rolesCount === 0) {
-      await strapi.query('plugin::users-permissions.role').create({
-        data: {
-          name: 'Authenticated',
-          description: 'Default role given to authenticated user.',
-          type: 'authenticated',
-        },
-      });
+      let publicRole = await roleQuery.findOne({ where: { type: 'public' } });
 
-      await strapi.query('plugin::users-permissions.role').create({
-        data: {
-          name: 'Public',
-          description: 'Default role given to unauthenticated user.',
-          type: 'public',
-        },
-      });
-    }
-
-    const publicRole = await strapi
-      .query('plugin::users-permissions.role')
-      .findOne({ where: { type: 'public' } });
-
-    if (publicRole) {
-      const permissions = await strapi
-        .query('plugin::users-permissions.permission')
-        .findMany({ where: { role: publicRole.id } });
-
-      const articleActions = ['api::article.article.find', 'api::article.article.findOne'];
-
-      for (const action of articleActions) {
-        const existing = permissions.find((p) => p.action === action);
-        if (!existing) {
-          await strapi.query('plugin::users-permissions.permission').create({
-            data: {
-              action,
-              role: publicRole.id,
-              enabled: true,
-            },
-          });
-        } else if (!existing.enabled) {
-          await strapi.query('plugin::users-permissions.permission').update({
-            where: { id: existing.id },
-            data: { enabled: true },
+      if (!publicRole) {
+        console.log('[Bootstrap] Creating default roles...');
+        publicRole = await roleQuery.create({
+          data: { name: 'Public', description: 'Default role given to unauthenticated user.', type: 'public' },
+        });
+        const authExists = await roleQuery.findOne({ where: { type: 'authenticated' } });
+        if (!authExists) {
+          await roleQuery.create({
+            data: { name: 'Authenticated', description: 'Default role given to authenticated user.', type: 'authenticated' },
           });
         }
       }
+
+      const requiredActions = [
+        'api::article.article.find',
+        'api::article.article.findOne',
+      ];
+
+      for (const action of requiredActions) {
+        const existing = await permQuery.findMany({
+          where: { action, role: publicRole.id },
+        });
+
+        for (const perm of existing) {
+          await permQuery.delete({ where: { id: perm.id } });
+        }
+
+        await permQuery.create({
+          data: { action, role: publicRole.id },
+        });
+        console.log(`[Bootstrap] Permission granted: ${action}`);
+      }
+
+      console.log('[Bootstrap] Public API permissions configured successfully');
+    } catch (error) {
+      console.error('[Bootstrap] Failed to configure permissions:', error.message);
     }
   },
 };
