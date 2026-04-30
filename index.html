@@ -682,6 +682,18 @@
         </div>
     </div>
 
+    <!-- Article Detail Modal -->
+    <div class="article-modal-overlay" id="articleOverlay">
+        <div class="article-modal">
+            <button class="article-modal-close" id="articleClose">
+                <svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" fill="none"/></svg>
+            </button>
+            <div id="articleContent">
+                <div class="article-modal-loading">Cargando artículo...</div>
+            </div>
+        </div>
+    </div>
+
     <!-- WhatsApp Float -->
     <a href="https://wa.me/15148932069?text=Hola%20Natalia,%20me%20gustar%C3%ADa%20solicitar%20informaci%C3%B3n%20sobre%20tus%20servicios%20de%20traducci%C3%B3n."
         class="whatsapp-float" target="_blank" rel="noopener noreferrer" aria-label="Contactar por WhatsApp">
@@ -693,6 +705,7 @@
         // STRAPI BLOG INTEGRATION
         // ============================================
         const STRAPI_URL = 'https://nataliaquintero.ca/strapi';
+        const STRAPI_API_TOKEN = '03e62efcc9ce908596ec8c98791b5e42fc8ecaa2636a15b8f312499553d6175562f70d0e17c8203af9ee7f19cc876e2676acc9aded5381f97119cdc71b9e66a6bb9c7a13ed945e2968a5d35c091481622212af702f8a98596bd3382c73900affc7dbcfc19ecc30c4d9ddad5e848f1e848648e636e8ec1d43a7a7df6250086bdb';
         const CURRENT_LOCALE = 'es';
 
         const fallbackArticles = [
@@ -752,8 +765,10 @@
         async function loadBlogArticles() {
             const container = document.getElementById('blogContainer');
             try {
+                const headers = STRAPI_API_TOKEN ? { 'Authorization': `Bearer ${STRAPI_API_TOKEN}` } : {};
                 const response = await fetch(
-                    `${STRAPI_URL}/api/articles?sort=publishedDate:desc&pagination[limit]=3&populate=coverImage`
+                    `${STRAPI_URL}/api/articles?sort=publishedDate:desc&pagination[limit]=3&populate=coverImage`,
+                    { headers }
                 );
                 if (!response.ok) throw new Error('API no disponible');
                 const result = await response.json();
@@ -778,6 +793,88 @@
         document.addEventListener('DOMContentLoaded', loadBlogArticles);
 
         // ============================================
+        // ARTICLE DETAIL MODAL
+        // ============================================
+        async function showArticle(slug) {
+            const overlay = document.getElementById('articleOverlay');
+            const contentEl = document.getElementById('articleContent');
+            contentEl.innerHTML = '<div class="article-modal-loading">Cargando artículo...</div>';
+            overlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            try {
+                const headers = STRAPI_API_TOKEN ? { 'Authorization': `Bearer ${STRAPI_API_TOKEN}` } : {};
+                const response = await fetch(`${STRAPI_URL}/api/articles?filters[slug][$eq]=${encodeURIComponent(slug)}&populate=coverImage&locale=${CURRENT_LOCALE}`, { headers });
+                if (!response.ok) throw new Error('API no disponible');
+                const result = await response.json();
+                const article = result.data && result.data[0];
+                if (!article) {
+                    const fallback = fallbackArticles.find(a => a.slug === slug);
+                    if (fallback) {
+                        contentEl.innerHTML = `
+                            <div class="article-modal-date">${formatDate(fallback.publishedDate)}</div>
+                            <h2 class="article-modal-title">${fallback.title}</h2>
+                            <div class="article-modal-body"><p>${fallback.excerpt}</p></div>
+                            <button class="article-modal-back" onclick="closeArticle()">&larr; Volver</button>`;
+                    } else {
+                        contentEl.innerHTML = '<div class="article-modal-loading">Artículo no encontrado.</div>';
+                    }
+                    return;
+                }
+                const coverUrl = article.coverImage?.url ? `${STRAPI_URL}${article.coverImage.url}` : null;
+                contentEl.innerHTML = `
+                    ${coverUrl ? `<img src="${coverUrl}" alt="${article.title}" class="article-modal-cover">` : ''}
+                    <div class="article-modal-date">${formatDate(article.publishedDate)}</div>
+                    <h2 class="article-modal-title">${article.title}</h2>
+                    <div class="article-modal-body">${article.content}</div>
+                    <button class="article-modal-back" onclick="closeArticle()">&larr; Volver</button>`;
+            } catch (error) {
+                const fallback = fallbackArticles.find(a => a.slug === slug);
+                if (fallback) {
+                    contentEl.innerHTML = `
+                        <div class="article-modal-date">${formatDate(fallback.publishedDate)}</div>
+                        <h2 class="article-modal-title">${fallback.title}</h2>
+                        <div class="article-modal-body"><p>${fallback.excerpt}</p></div>
+                        <button class="article-modal-back" onclick="closeArticle()">&larr; Volver</button>`;
+                } else {
+                    contentEl.innerHTML = '<div class="article-modal-loading">No se pudo cargar el artículo.</div>';
+                }
+            }
+        }
+
+        function closeArticle() {
+            document.getElementById('articleOverlay').classList.remove('active');
+            document.body.style.overflow = '';
+            history.pushState(null, '', window.location.pathname);
+        }
+
+        document.getElementById('articleClose').addEventListener('click', closeArticle);
+        document.getElementById('articleOverlay').addEventListener('click', function(e) {
+            if (e.target === this) closeArticle();
+        });
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeArticle();
+        });
+
+        document.addEventListener('click', function(e) {
+            const link = e.target.closest('a[href^="#blog/"]');
+            if (link) {
+                e.preventDefault();
+                const slug = link.getAttribute('href').replace('#blog/', '');
+                showArticle(slug);
+            }
+        });
+
+        window.addEventListener('hashchange', function() {
+            if (location.hash.startsWith('#blog/')) {
+                const slug = location.hash.replace('#blog/', '');
+                showArticle(slug);
+            }
+        });
+        if (location.hash.startsWith('#blog/')) {
+            document.addEventListener('DOMContentLoaded', () => showArticle(location.hash.replace('#blog/', '')));
+        }
+
+        // ============================================
         // MOBILE NAVIGATION
         // ============================================
         function toggleMobile() {
@@ -797,7 +894,7 @@
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
                 const href = this.getAttribute('href');
-                if (href === '#') return;
+                if (href === '#' || href.startsWith('#blog/')) return;
                 e.preventDefault();
                 const target = document.querySelector(href);
                 if (target) {
@@ -840,8 +937,8 @@
                 language: CURRENT_LOCALE
             };
             //console.log('contact form data:', data);
-            //const apiUrl = 'https://nataliaquintero.ca';
-            const apiUrl = 'http://localhost:5000/api/contact'
+            const apiUrl = 'https://nataliaquintero.ca/api/contact';
+           // const apiUrl = 'http://localhost:5000/api/contact'
 
             try {
                 const response = await fetch(`${apiUrl}`, {
